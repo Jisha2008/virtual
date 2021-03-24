@@ -1,47 +1,62 @@
-var hypnoticball, hypnoticballposition, dataBase, position;
+//Create variables here
+var dog;
+var happydog;
+var foodS;
+var foodstock;
+var foodRef;
+var database;
+var dogImg;
+var dogImg2;
 
-function setup(){
-dataBase = firebase.database();
-    createCanvas(500,500);
-    hypnoticball = createSprite(250,250,10,10);
-    hypnoticball.shapeColor = "red";
-    hypnoticballposition = dataBase.ref('ball/position');
 
-    hypnoticballposition.on("value", readposition, showerror)
+function preload()
+{
+	//load images here
+  dogImg = loadImage("images/dogImg.png");
+ dogImg2 = loadImage("images/dogImg1.png");
 }
 
-function draw(){
-    background("white");
-    if(keyDown(LEFT_ARROW)){
-        writePosition(-1,0);
-    }
-    else if(keyDown(RIGHT_ARROW)){
-        writePosition(1,0);
-    }
-    else if(keyDown(UP_ARROW)){
-        writePosition(0,-1);
-    }
-    else if(keyDown(DOWN_ARROW)){
-        writePosition(0,+1);
-    }
-    drawSprites();
+function setup() {
+	createCanvas(500,500);
+  database = firebase.database();
+
+  dog = createSprite(250,250,5,5);
+  dog.addImage(dogImg2);
+  dog.scale = 0.3;
+  
+
+  foodRef = database.ref("food");
+  foodRef.on("value",readstock);
+
+  foodRef.set(20)
 }
 
-function writePosition(x,y){
-    dataBase.ref('ball/position').set({
-      'x' : position.x + x,
-      'y' : position.y + y
-    })
-   
+
+function draw() {  
+  background(46, 139, 87);
+
+  if(keyWentUp(UP_ARROW)){
+    writeStock(foodS);
+    dog.addImage(dogImg);
+    dog.scale = 0.3
+  }
+
+  drawSprites();
+  //add styles here
+  textSize(32);
+  fill("blue");
+  text("Bones in the Stock: " + foodstock ,50 ,100);
+  dog.display();
+
 }
 
-function readposition(data){
-    position = data.val();
-    hypnoticball.x = position.x;
-    hypnoticball.y = position.y;
-
+function readstock(data){
+  foodS = data.val();
 }
 
-function showerror(){
-    console.log("cannot read the values from database. ");
+function writeStock(x){
+
+  database.ref('/').update({
+    food:x
+  });
 }
